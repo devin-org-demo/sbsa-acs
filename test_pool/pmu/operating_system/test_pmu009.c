@@ -97,12 +97,14 @@ static void payload(void)
         return;
     }
 
+    /* Disable all monitors before configuration */
+    val_pmu_disable_all_monitors(pmu_node_index);
+
     /* Each monitor must be able to measure each supported traffic type */
     for (mon_index = 0; mon_index < num_mon; mon_index++)
     {
         /* Configure PMEVTYPER with required event type */
         for (i = 0; i < NUM_TRAFFIC_TYPE; i++) {
-
             status = val_pmu_configure_monitor(pmu_node_index, config_events[i], mon_index);
             if (status) {
                 val_print(ACS_PRINT_ERR,
@@ -111,6 +113,10 @@ static void payload(void)
                 val_set_status(index, RESULT_FAIL(TEST_NUM, 6));
                 return;
             }
+        }
+
+        /* Enable and test each configured event type */
+        for (i = 0; i < NUM_TRAFFIC_TYPE; i++) {
             val_pmu_enable_monitor(pmu_node_index, mon_index);
 
             /* generate workload */

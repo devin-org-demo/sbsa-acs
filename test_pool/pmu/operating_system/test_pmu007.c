@@ -139,6 +139,9 @@ static void payload(void)
                 continue;
             }
 
+            /* Disable all monitors before configuration */
+            val_pmu_disable_all_monitors(node_index);
+
             /* Configure PMEVTYPER to monitor Bandwidth value */
             for (i = 0; i < NUM_TOTAL_PMU_MON; i++) {
                 status = val_pmu_configure_monitor(node_index, bandwidth_events[i], i);
@@ -162,10 +165,9 @@ static void payload(void)
             generate_traffic(node_index, num_ecam, 10, bandwidth1);
 
             /* Reset the monitors */
-            for (i = 0; i < NUM_TOTAL_PMU_MON ; i++) {
-                val_pmu_disable_monitor(node_index, i);
+            val_pmu_disable_all_monitors(node_index);
+            for (i = 0; i < NUM_TOTAL_PMU_MON ; i++)
                 val_pmu_enable_monitor(node_index, i);
-            }
 
             /* Generate second pcie traffic */
             generate_traffic(node_index, num_ecam, 20, bandwidth2);
